@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore the fundamentals of music via Ableton's interactive website. Experiment with beats, melody, harmony, basslines, and song structure in your web browser.">
+  
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://learningmusic.ableton.com/images/og-image.jpg">
+  
+    <meta property="ix:host" content="ableton-learningmusic.imgix.net">
+    <meta property="ix:useHttps" content="true">
+  
+    <title> Play with beats | Learning Music (Beta)</title>
+  
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="shortcut icon" type="image/ico" href="/images/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-2HCS');</script>
+    <!-- End Google Tag Manager -->
+  
+    <script type="text/javascript" src="/third-party/polyfills/polyfills.js"></script>
+    <script type="text/javascript" src="/third-party/Tone.js-master/build/Tone.min.js"></script>
+    <script type="text/javascript" src="/third-party/d3/d3.min.js"></script>
+    <script type="text/javascript" src="/third-party/lodash/lodash.js"></script>
+    <script type="text/javascript" src="/third-party/microevent/microevent.js"></script>
+    <script type="text/javascript" src="/third-party/imgix/imgix.min.js"></script>
+    <script type="text/javascript" src="/widgets/build/widgets.min.js"></script>
+  
+    <script type="text/javascript">
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga_uni');
+      ga_uni('create', 'UA-4276731-7', 'auto');
+      ga_uni('set', 'anonymizeIp', true);
+      ga_uni('send', 'pageview');
+    </script>
+  
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+    <script>
+    window.addEventListener("load", function(){
+    window.cookieconsent.hasTransition = false;
+    window.cookieconsent.initialise({
+      "palette": {
+        "popup": {
+          "background": "#000000",
+          "text": "#ffffff"
+        },
+        "button": {
+          "background": "#ffffff",
+          "text": "#000000"
+        }
+      },
+      "content": {
+        "message": "This site uses cookies. By continuing to browse the site you are agreeing to our use of cookies.",
+        "dismiss": "OK",
+        "link": "Find out more here ›",
+        "href": "https://www.ableton.com/privacy-policy/#cookies"
+      },
+      onPopupOpen: function () {
+        var $message = document.getElementById('cookieconsent:desc');
+        $message.style.fontFamily = 'Futura PT';
+        $message.style.fontSize = '18px';
+        $message.style.fontWeight = 'normal';
+    
+        var $button = document.getElementsByClassName('cc-btn')[0];
+        $button.style.fontFamily = 'Futura PT';
+        $button.style.fontSize = '18px';
+        $button.style.fontWeight = 'bold';
+    
+        var $bottomPadding = document.getElementsByClassName('cookieconsent-padding')[0];
+        $bottomPadding.style.display = "block";
+      },
+      onPopupClose: function() {
+        var $bottomPadding = document.getElementsByClassName('cookieconsent-padding')[0];
+        $bottomPadding.style.display = "none";
+      }
+    })});
+    </script>
+  
+    <script type="text/javascript">
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(registration) {
+          }, function(err) {
+          });
+        });
+      }
+    </script></head>
+  <body class="bg--base color--inverted has-nav" onload="">
+    <noscript>
+      <div class="pt2 pb2 bg--salmon text--white">
+        <center><strong>Please enable JavaScript in order to use this site.</strong></center>
+      </div>
+    </noscript>
+
+    <script type="text/javascript">
+      function onLoad() {
+        SUPERVISOR = new AudioSupervisor();
+        SUPERVISOR.init();
+    
+        EXPORTER = new LiveSetExporter();
+        EXPORTER.init();
+    
+        KEY_SUPERVISOR = new KeySupervisor();
+        KEY_SUPERVISOR.init();
+    
+        METRONOME = new Metronome();
+        METRONOME.init();
+    
+        SAMPLE_CACHE = new SampleCache();
+        SAMPLE_CACHE.init();
+    
+        LOCALE = '';
+        LOCALE_PATH = '';
+      }
+      onLoad();
+    
+      document.addEventListener("DOMContentLoaded", function(event) {
+        var widgets = document.getElementsByClassName("widget");
+        var widgetIds = {};
+        for (var i = 0; i < widgets.length; i++) {
+          var id = widgets[i].id;
+          if (widgetIds[id]) {
+            throw "Duplicate widget id: " + id;
+          }
+          widgetIds[id] = true;
+        }
+      });
+    </script>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-2HCS"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div class="container mx-auto">
+      <header class="main-header">
+        <div class="ribbon ribbon--rigid medium">
+          <div class="ribbon__element main-header__title">
+            10/10:&nbsp;<a href="../make-beats/make-beats.html">Beats</a>
+          </div>
+          <div class="ribbon__element main-header__logo">
+            <a href="https://www.ableton.com/">
+              <svg class="main-header__logo__icon" width="60px" height="28px" viewBox="0 0 60 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g fill-rule="nonzero" fill="#FFFFFF">
+                  <rect id="Rectangle-path" x="0" y="0" width="4" height="28"></rect>
+                  <rect id="Rectangle-path" x="8" y="0" width="4" height="28"></rect>
+                  <rect id="Rectangle-path" x="16" y="0" width="4" height="28"></rect>
+                  <rect id="Rectangle-path" x="24" y="0" width="4" height="28"></rect>
+                  <rect id="Rectangle-path" x="32" y="24" width="28" height="4"></rect>
+                  <rect id="Rectangle-path" x="32" y="16" width="28" height="4"></rect>
+                  <rect id="Rectangle-path" x="32" y="8" width="28" height="4"></rect>
+                  <rect id="Rectangle-path" x="32" y="0" width="28" height="4"></rect>
+                </g>
+              </svg>
+            </a>
+          </div>
+        </div>
+      
+        <div class="nav-title">
+        <button aria-label="Toggle navigation" tabindex="0" class="btn nav-title__button js-toggle-nav">
+          <span class="nav-title__content">
+            <span class="nav-title__icon-wrapper">
+              <img width="26" alt="" src="/images/icons/chapters.svg" class="nav-title__icon nav-title__icon--open">
+              <img width="26" alt="" src="/images/icons/close.svg" class="nav-title__icon nav-title__icon--close">
+            </span>
+            <span class="nav-title__label ">Chapters</span>
+          </span>
+        </button>
+      </div>
+      <nav class="js-nav-element nav">
+        <div class="nav__content js-nav-content">
+          <div class="nav__container nav__container--primary">
+            <div class="nav__section-title">Chapters</div>
+            <ul class="nav__list"><li class="nav__list-item"><a class="nav__link nav__link--chapter " href="/index.html">Get started</a></li><li class="nav__list-item"><a class="nav__link nav__link--chapter nav__link--has-subnav js-show-nav-chapter nav__link--active" href="/make-beats/make-beats.html">Beats</a><div class="nav__subnav"><button class="nav__hide-chapter btn btn--link btn--cropped js-hide-nav-chapter">‹ Chapters</button><div class="nav__section-title">Lessons</div><ul class="nav__list nav__list--secondary"><li class="nav__list-item"><a class="nav__link " href="/make-beats/make-beats.html">Make beats</a></li><li class="nav__list-item"><a class="nav__link " href="/make-beats/what-are-these-sounds.html">What are these sounds?</a></li><li class="nav__list-item"><a class="nav__link " href="/make-beats/beat-and-tempo.html">Beat and tempo</a></li><li class="nav__list-item"><a class="nav__link " href="/make-beats/tempo-and-genre.html">Tempo and genre</a></li><li class="nav__list-item"><a class="nav__link " href="/make-beats/backbeats.html">Backbeats</a></li><li class="nav__list-item"><a class="nav__link " href="/make-beats/bars.html">Bars</a></li><li class="nav__list-item"><a class="nav__link " href="/make-beats/rock-and-house.html">Rock and house</a></li><li class="nav__list-item"><a class="nav__link " href="/make-beats/we-will-rock-you.html">“We Will Rock You”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-beats/single-ladies.html">“Single Ladies”</a></li><li class="nav__list-item"><a class="nav__link nav__link--active" href="/make-beats/play-with-beats.html">Play with beats</a></li></ul></div></li><li class="nav__list-item"><a class="nav__link nav__link--chapter nav__link--has-subnav js-show-nav-chapter " href="/notes-and-scales/notes-and-scales.html">Notes and scales</a><div class="nav__subnav"><button class="nav__hide-chapter btn btn--link btn--cropped js-hide-nav-chapter">‹ Chapters</button><div class="nav__section-title">Lessons</div><ul class="nav__list nav__list--secondary"><li class="nav__list-item"><a class="nav__link " href="/notes-and-scales/notes-and-scales.html">Explore pitch</a></li><li class="nav__list-item"><a class="nav__link " href="/notes-and-scales/make-patterns-with-pitch.html">Make patterns with pitch</a></li><li class="nav__list-item"><a class="nav__link " href="/notes-and-scales/keys-and-scales.html">Keys and scales</a></li><li class="nav__list-item"><a class="nav__link " href="/notes-and-scales/minor-scales.html">Minor scales</a></li><li class="nav__list-item"><a class="nav__link " href="/notes-and-scales/adding-more-notes.html">Adding more notes</a></li><li class="nav__list-item"><a class="nav__link " href="/notes-and-scales/play-with-notes-and-scales.html">Play with notes and scales</a></li></ul></div></li><li class="nav__list-item"><a class="nav__link nav__link--chapter nav__link--has-subnav js-show-nav-chapter " href="/chords/chords.html">Chords</a><div class="nav__subnav"><button class="nav__hide-chapter btn btn--link btn--cropped js-hide-nav-chapter">‹ Chapters</button><div class="nav__section-title">Lessons</div><ul class="nav__list nav__list--secondary"><li class="nav__list-item"><a class="nav__link " href="/chords/chords.html">Make some chords</a></li><li class="nav__list-item"><a class="nav__link " href="/chords/major-triads.html">Major triads</a></li><li class="nav__list-item"><a class="nav__link " href="/chords/minor-triads.html">Minor triads</a></li><li class="nav__list-item"><a class="nav__link " href="/chords/get-up-stand-up.html">“Get Up, Stand Up”</a></li><li class="nav__list-item"><a class="nav__link " href="/chords/mary-had-a-little-lamb.html">“Mary Had a Little Lamb”</a></li><li class="nav__list-item"><a class="nav__link " href="/chords/1-5-6-4.html">1-5-6-4</a></li><li class="nav__list-item"><a class="nav__link " href="/chords/play-with-chords.html">Play with chords</a></li></ul></div></li><li class="nav__list-item"><a class="nav__link nav__link--chapter nav__link--has-subnav js-show-nav-chapter " href="/make-basslines/make-basslines.html">Basslines</a><div class="nav__subnav"><button class="nav__hide-chapter btn btn--link btn--cropped js-hide-nav-chapter">‹ Chapters</button><div class="nav__section-title">Lessons</div><ul class="nav__list nav__list--secondary"><li class="nav__list-item"><a class="nav__link " href="/make-basslines/make-basslines.html">Make basslines</a></li><li class="nav__list-item"><a class="nav__link " href="/make-basslines/good-life.html">“Good Life”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-basslines/around-the-world.html">“Around the World”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-basslines/sleng-teng.html">“Under Mi Sleng Teng”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-basslines/never-tell-you.html">“Never Tell You”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-basslines/oblivion.html">“Oblivion”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-basslines/play-with-basslines.html">Play with basslines</a></li></ul></div></li><li class="nav__list-item"><a class="nav__link nav__link--chapter nav__link--has-subnav js-show-nav-chapter " href="/make-melodies/make-melodies.html">Melodies</a><div class="nav__subnav"><button class="nav__hide-chapter btn btn--link btn--cropped js-hide-nav-chapter">‹ Chapters</button><div class="nav__section-title">Lessons</div><ul class="nav__list nav__list--secondary"><li class="nav__list-item"><a class="nav__link " href="/make-melodies/make-melodies.html">Make melodies</a></li><li class="nav__list-item"><a class="nav__link " href="/make-melodies/love-will-tear-us-apart.html">“Love Will Tear Us Apart”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-melodies/tour-de-france.html">“Tour de France”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-melodies/praxis.html">“Praxis”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-melodies/ride.html">“Ride”</a></li><li class="nav__list-item"><a class="nav__link " href="/make-melodies/ride-variations.html">“Ride” variations</a></li><li class="nav__list-item"><a class="nav__link " href="/make-melodies/play-with-melodies.html">Play with melodies</a></li></ul></div></li><li class="nav__list-item"><a class="nav__link nav__link--chapter nav__link--has-subnav js-show-nav-chapter " href="/song-structure/song-structure.html">Song structure</a><div class="nav__subnav"><button class="nav__hide-chapter btn btn--link btn--cropped js-hide-nav-chapter">‹ Chapters</button><div class="nav__section-title">Lessons</div><ul class="nav__list nav__list--secondary"><li class="nav__list-item"><a class="nav__link " href="/song-structure/song-structure.html">Play with song structures</a></li><li class="nav__list-item"><a class="nav__link " href="/song-structure/bury-it.html">“Bury It”</a></li><li class="nav__list-item"><a class="nav__link " href="/song-structure/award-tour.html">“Award Tour”</a></li><li class="nav__list-item"><a class="nav__link " href="/song-structure/ni-ten-ichi-ryu.html">“Ni - Ten - Ichi - Ryu”</a></li><li class="nav__list-item"><a class="nav__link " href="/song-structure/i-feel-love.html">“I Feel Love”</a></li></ul></div></li><li class="nav__list-item"><a class="nav__link nav__link--chapter " href="/the-playground.html">The playground</a></li><li class="nav__list-item"><a class="nav__link nav__link--chapter nav__link--has-subnav js-show-nav-chapter " href="/advanced-topics/advanced-topics.html">Advanced topics</a><div class="nav__subnav"><button class="nav__hide-chapter btn btn--link btn--cropped js-hide-nav-chapter">‹ Chapters</button><div class="nav__section-title">Lessons</div><ul class="nav__list nav__list--secondary"><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/advanced-topics.html">Advanced topics</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/building-major-scales.html">Building major scales</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/building-minor-scales.html">Building minor scales</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/modes.html">Modes</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/pentatonic.html">Pentatonic</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/whole-tone.html">Whole tone</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/octatonic.html">Octatonic</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/pelog.html">Pelog</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/19-tone.html">19-tone</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/diatonic-triads.html">Diatonic triads</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/triads-in-every-key.html">Triads in every key</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/inversions.html">Inversions</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/voicings.html">Voicings</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/seventh-chords.html">Seventh chords</a></li><li class="nav__list-item"><a class="nav__link " href="/advanced-topics/mommy-whats-a-record.html">“Mommy What's a Record”</a></li></ul></div></li><li class="nav__list-item"><a class="nav__link nav__link--chapter " href="/where-to-go-from-here.html">Where to go from here</a></li></ul>
+          </div>
+          <div class="nav__container nav__container--secondary js-subnav-container"></div>
+        </div>
+      </nav>
+      
+      <script>
+      (function() {
+        if (document.querySelector && !!document.createElement('p').classList) {
+          var navElement = document.querySelector('.js-nav-element')
+      
+          function initNav (navElement) {
+            var chapterLinks = document.querySelectorAll('.nav__link--chapter')
+            var navToggleBtns = document.querySelectorAll('.js-toggle-nav')
+            var chapterShowBtns = navElement.querySelectorAll('.js-show-nav-chapter')
+            var chapterHideBtns = navElement.querySelectorAll('.js-hide-nav-chapter')
+            var subnavContainer = navElement.querySelector('.js-subnav-container')
+            var activeChapter = navElement.querySelector('.js-show-nav-chapter.nav__link--active')
+      
+            for (var i = 0; i < chapterShowBtns.length; i++) {
+              chapterShowBtns[i].addEventListener('click', function (event) {
+                event.preventDefault()
+      
+                deactivateLinks(chapterLinks)
+      
+                showSubnav(
+                  event.target,
+                  subnavContainer,
+                  event.target.nextSibling.cloneNode(true)
+                )
+              })
+            }
+      
+            for (var i = 0; i < navToggleBtns.length; i++) {
+              navToggleBtns[i].addEventListener('click', function () {
+                document.body.classList.add('nav-has-interacted')
+                toggleNav()
+              })
+            }
+      
+            // Initially hide nav
+            toggleNav()
+      
+            // Show active subnav
+            if (activeChapter) {
+              showSubnav(
+                activeChapter,
+                subnavContainer,
+                activeChapter.nextSibling.cloneNode(true)
+              )
+            }
+      
+            document.body.classList.add('nav-is-initialized')
+          }
+      
+          function toggleNav () {
+            document.body.classList.toggle('nav-is-hidden')
+            toggleNavLinkTabIndex()
+          }
+      
+          function toggleNavLinkTabIndex () {
+            var navLinks = document.querySelectorAll('.js-nav-element a')
+            if (navLinks[0].tabIndex === -1) {
+              for (var i = 0; i < navLinks.length; i++) {
+                navLinks[i].tabIndex = 0
+              }
+            } else {
+              for (var i = 0; i < navLinks.length; i++) {
+                navLinks[i].tabIndex = -1
+              }
+            }
+          }
+      
+          function showSubnav (trigger, subnavContainer, subnavContent) {
+            trigger.classList.add('nav__link--active')
+            navElement.classList.remove('nav--subnav-is-hidden')
+            navElement.classList.add('nav--subnav-is-visible')
+            subnavContainer.innerHTML = ''
+            subnavContent.classList.add('nav__subnav--active')
+            subnavContainer.appendChild(subnavContent)
+      
+            subnavContainer
+              .querySelector('.js-hide-nav-chapter')
+              .addEventListener('click', function (event) {
+                hideSubnav()
+              })
+          }
+      
+          function hideSubnav () {
+            navElement.classList.remove('nav--subnav-is-visible')
+            navElement.classList.add('nav--subnav-is-hidden')
+          }
+      
+          function deactivateLinks (links) {
+            for (var i = 0; i < links.length; i++) {
+              links[i].classList.remove('nav__link--active')
+            }
+          }
+      
+          initNav(navElement)
+        }
+      })()
+      </script>
+      
+      </header>
+    </div>
+
+    <div class="container container--max-width mx-auto">
+      <div class="body-text text-container limit-line-length-inside">
+        <h1 id="play-with-beats">Play with beats</h1>
+<p>Now that you&#39;ve experimented with some musical examples, spend some time creating your own beats.</p>
+<p>This beat grid works just like the one you&#39;ve been using, but you can also <em>record</em> into it as you play. When you&#39;re recording, you&#39;ll hear a click on each beat, so that it&#39;s easier to play at the right tempo.</p>
+<p><script> _playwithbeatsrecordabledrumpadrecorder = new Recorder(); </script>
+          <div class="widget theme-a" id="_playwithbeatsrecordabledrumpad">
+            <div class="widget-pianoroll drumsequencer"
+              id='_playwithbeatsrecordabledrumpadsequencer'
+              data-material='drums'
+              data-tempo='85'
+              data-onPlay='join'
+              data-targetState=''
+              data-defaultState=''
+              data-lanes='[{"name":"Kick","midi":36,"path":"simplesequencer/909/Kick"},{"name":"Clap","midi":39,"path":"simplesequencer/909/Clap"},{"name":"Closed Hat","midi":42,"choke":46,"path":"simplesequencer/909/ClosedHat"},{"name":"Open Hat","midi":46,"path":"simplesequencer/909/OpenHat"}]'
+              data-instrument='{"livePreset":"Kit-Core 909","samples":[{"name":"Kick","midi":36,"path":"simplesequencer/909/Kick"},{"name":"Clap","midi":39,"path":"simplesequencer/909/Clap"},{"name":"Closed Hat","midi":42,"choke":46,"path":"simplesequencer/909/ClosedHat"},{"name":"Open Hat","midi":46,"path":"simplesequencer/909/OpenHat"}]}'
+              data-beats='4'
+              data-gridSize='16'
+              data-allowResize='false'
+              data-disableExport=''
+              data-recorder='_playwithbeatsrecordabledrumpadrecorder'
+              data-tip='record'
+              data-tips='{"playstop":{"@text":"Click this button to start and stop playback."},"createdeletenotes":{"@text":"Click in the grid to create a note. Click an existing note to delete it."},"tempo":{"@text":"Drag the slider to change the tempo."},"overview":{"@text":"Click to focus on a single bar. Click again to see the whole pattern."},"record":{"@text":"Click to start and stop real-time recording. When active, you can record what you play on the pads."},"dragnotes":{"@text":"You can move notes around the grid by clicking and dragging them."},"resizenotes":{"@text":"You can lengthen or shorten notes by dragging on their right edge."},"selectnotes":{"@text":"Click and drag around multiple notes to select them. You can then move them together."},"export":{"@text":"If you make patterns you like, you can export and open them in Ableton Live."},"keyboard":{"@text":"Click here to play these sounds using your keyboard keys."},"drumpad":{"@text":"Click on the pads to play a sound."},"lowhighpitch":{"@text":"Click and drag. Lower pitches are to the left, higher pitches to the right."},"songformsections":{"@text":"Click on the blocks to jump to a particular section of the song."},"devicemute":{"@text":"If you do not hear any sound, check that your device is not muted and that the volume is turned up."},"exportnotsupportedchromeios":{"@text":"Exporting to Live is not available from this browser. Please use Safari if you’d like to export your music from an iOS device.","showalways":true}}'
+              data-highlightedLanes='[]'
+              data-lang='{"@reset":"Reset","@clear":"Clear","@exporttolive":"Export to Live","@exporting":"Exporting","@tempo":"Tempo","@keyboard":"Keyboard","@on":"On","@off":"Off","@close":"Close","@lowpitch":"Low Pitch","@highpitch":"High Pitch","@fillinsolution":"Fill in solution","@incompatiblebrowser":"Your browser can’t display the interactive musical examples on this page.<br>Please use a browser that supports Web Audio such as Chrome, Safari, Firefox, or Edge."}'>
+            </div>
+            <div class="widget-drumpad widget-recordabledrumpad"
+              id='_playwithbeatsrecordabledrumpaddrumpad'
+              data-keyboard='1234'
+              data-kit='{"livePreset":"Kit-Core 909","samples":[{"name":"Kick","midi":36,"path":"simplesequencer/909/Kick"},{"name":"Clap","midi":39,"path":"simplesequencer/909/Clap"},{"name":"Closed Hat","midi":42,"choke":46,"path":"simplesequencer/909/ClosedHat"},{"name":"Open Hat","midi":46,"path":"simplesequencer/909/OpenHat"}]}'
+              data-recorder='_playwithbeatsrecordabledrumpadrecorder'
+              data-lang='{"@reset":"Reset","@clear":"Clear","@exporttolive":"Export to Live","@exporting":"Exporting","@tempo":"Tempo","@keyboard":"Keyboard","@on":"On","@off":"Off","@close":"Close","@lowpitch":"Low Pitch","@highpitch":"High Pitch","@fillinsolution":"Fill in solution","@incompatiblebrowser":"Your browser can’t display the interactive musical examples on this page.<br>Please use a browser that supports Web Audio such as Chrome, Safari, Firefox, or Edge."}'>
+            </div>
+          </div></p>
+<p>Now that you&#39;ve experimented with beats, it&#39;s time to move on to different types of musical ideas.</p>
+
+      </div>
+
+      <div class="prev-next">
+          <a class="prev-next__element prev-next__element--prev btn btn--link btn--lg" href="/make-beats/single-ladies.html">‹&nbsp;Previous</a>
+          <a class="prev-next__element prev-next__element--next btn btn--default btn--lg btn--wide" href="/notes-and-scales/notes-and-scales.html">Next<span class="prev-next__extended">: Explore pitch</span>&nbsp;›</a>
+      </div>
+    </div>
+
+    <div class="container mx-auto">
+      <footer class="main-footer">
+        <script type="text/javascript">
+        function reset_all() {
+          function delete_cookie(cookie_name) {
+            document.cookie = cookie_name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+          }
+        
+          delete_cookie("cookieconsent_status");
+          localStorage.clear();
+          location.reload();
+        }
+        </script>
+        <ul class="list-reset medium color--secondary">
+          <li class="ribbon__element ribbon__element--padded"><span class="label color--base bg--secondary">Beta</span> <a href="mailto:learning@ableton.com">Send us your feedback!</a></li>
+      
+          <li class="ribbon__element ribbon__element--padded">
+            <div class="lang-chooser" style="display: flex; flex-wrap: wrap; flex-basis: max-content">
+              <style>
+                .lang-chooser .selected {
+                  color: #fff;
+                }
+            
+                .lang-chooser a  {
+                  margin-right: 15px;
+                }
+              </style>
+            
+                  <a
+                  data-value="en"
+                  class="selected"
+                  href="javascript:switchLanguage('en')"
+                  >English</a>
+                  <a
+                  data-value="zh"
+                  class=""
+                  href="javascript:switchLanguage('zh')"
+                  >中文</a>
+                  <a
+                  data-value="de"
+                  class=""
+                  href="javascript:switchLanguage('de')"
+                  >Deutsch</a>
+                  <a
+                  data-value="es"
+                  class=""
+                  href="javascript:switchLanguage('es')"
+                  >Español</a>
+                  <a
+                  data-value="fr"
+                  class=""
+                  href="javascript:switchLanguage('fr')"
+                  >Français</a>
+                  <a
+                  data-value="it"
+                  class=""
+                  href="javascript:switchLanguage('it')"
+                  >Italiano</a>
+                  <a
+                  data-value="ja"
+                  class=""
+                  href="javascript:switchLanguage('ja')"
+                  >日本語</a>
+                  <a
+                  data-value="ko"
+                  class=""
+                  href="javascript:switchLanguage('ko')"
+                  >한국어</a>
+                  <a
+                  data-value="nl"
+                  class=""
+                  href="javascript:switchLanguage('nl')"
+                  >Nederlands</a>
+            
+              <script type="text/javascript">
+                function switchLanguage(locale) {
+                  var currentPageLocale = "";
+            
+                  var pathname = window.location.pathname;
+                  var pathnameWithoutLocale = currentPageLocale
+                    ? pathname.substr(currentPageLocale.length + 1)
+                    : pathname;
+            
+                  var localeString = locale === "en"
+                    ? ""
+                    : "/" + locale;
+            
+                  var newURL = localeString + pathnameWithoutLocale;
+                  window.location.assign(newURL);
+                }
+              </script>
+            </div>
+          </li>
+      
+          <li class="ribbon__element ribbon__element--padded">
+          <button class="btn--reset reset-button" onclick="reset_all();">Reset all lessons</button>
+          </li>
+      
+          <li class="ribbon__element ribbon__element--padded"><a href="https://www.ableton.com/" class="ml-auto">Go to Ableton.com ›</a></li>
+        </ul>
+      </footer>
+      
+      <div class="cookieconsent-padding"></div>
+    </div>
+
+      <script src="/widgets/build/SimplePianoRoll.js"></script>
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          var sequencers = document.getElementsByClassName("widget-pianoroll");
+          Array.from(sequencers).forEach(function(e) {
+            window[e.id] = new SimplePianoRoll();
+            window[e.id].init({
+              widgetId: e.id,
+              material: e.getAttribute('data-material'),
+              tempo: e.getAttribute('data-tempo'),
+              onPlay: e.getAttribute('data-onplay'),
+              targetState: e.getAttribute('data-targetstate'),
+              defaultState: e.getAttribute('data-defaultstate'),
+              lanes: JSON.parse(e.getAttribute('data-lanes')),
+              beats: parseInt(e.getAttribute('data-beats')),
+              gridSize: parseInt(e.getAttribute('data-gridsize')),
+              allowResize: e.getAttribute('data-allowresize') == "true",
+              disableExport: e.getAttribute('data-disableexport'),
+              instrument: JSON.parse(e.getAttribute('data-instrument')),
+              showTempoSlider: e.getAttribute('data-showtemposlider'),
+              showRootChooser: e.getAttribute('data-showrootchooser'),
+              showScaleChooser: e.getAttribute('data-showscalechooser'),
+              availableScales: e.getAttribute('data-availablescales'),
+              defaultScale: e.getAttribute('data-defaultscale'),
+              defaultRoot: e.getAttribute('data-defaultroot'),
+              defaultOctave: e.getAttribute('data-defaultoctave'),
+              defaultOctaveCount: e.getAttribute('data-defaultoctavecount'),
+              recorder: window[e.getAttribute('data-recorder')],
+              exporter: EXPORTER,
+              tip: e.getAttribute('data-tip'),
+              tips: JSON.parse(e.getAttribute('data-tips')),
+              highlightedLanes: JSON.parse(e.getAttribute('data-highlightedlanes')),
+              lang: JSON.parse(e.getAttribute('data-lang'))
+            })
+          })
+      
+        });
+      </script>
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          var widgets = document.getElementsByClassName("widget-drumpad");
+          Array.from(widgets).forEach(function(e) {
+            window[e.id] = new SimpleDrumpad();
+            window[e.id].init({
+              widgetId: e.id,
+              keyboard: e.getAttribute('data-keyboard'),
+              kit: JSON.parse(e.getAttribute('data-kit')),
+              recorder: window[e.getAttribute('data-recorder')],
+              tips: JSON.parse(e.getAttribute('data-tips')),
+              tip: e.getAttribute('data-tip'),
+              lang: JSON.parse(e.getAttribute('data-lang'))
+            })
+          })
+        });
+      </script>
+  </body>
+</html>
